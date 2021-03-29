@@ -1,3 +1,1 @@
-# Headline
-
-> An awesome project.
+[Anakin's Blog](http://anakinyang.github.io)
