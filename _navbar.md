@@ -1,4 +1,4 @@
-* Post
+* [Post](/post/)
 
 * thing 1
 
