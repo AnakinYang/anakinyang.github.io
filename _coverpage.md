@@ -4,3 +4,6 @@
 
 [Start](post/)
 [Discuss](https://github.com/AnakinYang/AnakinYang.github.io/discussions/1)
+
+
+![cover](_image/cover.jpg)
