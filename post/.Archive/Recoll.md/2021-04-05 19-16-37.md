@@ -1,0 +1,103 @@
+# Recoll  安装部署
+>  [Recoll](https://www.lesbonscomptes.com/recoll/) 是一个全文检索工具，有服务端和桌面端
+> 此文为服务端的安装部署方式，使用浏览器访问即可，需要 1 台 2 核 4 G 的云服务器及公网 IP
+> 系统：Ubuntu 18.03 LTS
+
+## 配置 apt 源
+```bash
+cp -a /etc/apt/sources.list /etc/apt/sources.list.bak
+sed -i "s@http://.*archive.ubuntu.com@http://repo.huaweicloud.com@g" /etc/apt/sources.list
+sed -i "s@http://.*security.ubuntu.com@http://repo.huaweicloud.com@g" /etc/apt/sources.list
+apt update
+```
+
+## 安装相关组件
+```bash
+add-apt-repository ppa:recoll-backports/recoll-1.15-on
+apt update
+apt install -y tmux
+apt install -y recoll
+apt install -y python3-pip
+pip3 install waitress
+```
+`waitress` 包可能会安装失败，解决依赖，重新安装即可
+
+## 安装 Web UI
+```bash
+git clone https://framagit.org/medoc92/recollwebui.git
+```
+
+## 创建文档存放目录
+```bash
+mkdir /root/lib
+```
+## 生成配置文件路径
+```bash
+recollindex
+```
+执行一半按 `Ctrl - C` 终止即可
+
+## 修改配置
+复制配置文件到当前登录的用户目录下：
+```bash
+cp /usr/share/recoll/examples/recoll.conf /root/.recoll/recoll.conf
+```
+修改以下字段：
+```bash
+vim $_  # 使用 vim 修改上一步复制的配置文件
+topdir = ~/lib  # 指定 Recoll 的索引目录为 ～/lib
+```
+## 部署并维护
+生成索引：
+```bash
+recollindex -z
+```
+使用 crontab 定时更新索引：
+```bash
+crontab -e
+```
+追加以下内容，每天 5 点更新：
+```
+0 5 * * * recollindex -z
+```
+打开 tmux，然后启动 web 服务：
+```bash
+tmux
+cd recollwebui
+./webui-standalone.py -a 0.0.0.0 -p 8080
+```
+最后，直接关掉终端即可
+## 访问及使用
+外部访问：`IP:Port`
+上传资料：
+```bash
+# 创建 ～/.pip/pip.conf 文件
+vim pip.conf  # 先进入路径
+# 写入以下内容：
+[global]                                                                                      
+index-url = https://pypi.tuna.tsinghua.edu.cn/simple
+# 安装 updog
+pip3 install updog
+# 放在后台运行
+setsid updog -d ~/lib --password your-password --ss # your-password 自行设定密码
+```
+访问：`https://IP:9090` 即可访问，IP 可使用 `curl cip.cc` 命令查询，打开页面后，用户名留空，密码填上一步设置的密码。
+或，新增资料时使用 `scp` 命令上传服务器即可：
+```bash
+scp -v ./* root@IP:/root/lib
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
